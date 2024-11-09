@@ -23,6 +23,9 @@ navigaitonCompose = "2.8.3"
 #serialization
 serialization = "1.6.3"
 
+#coil
+coilCompose = "2.7.0"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -58,6 +61,9 @@ compose-navigation = { module = "androidx.navigation:navigation-compose", versio
 
 #serialization
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+
+#coil
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -18,28 +18,32 @@ class HomeViewModel(private val getProductUseCase: GetProductUseCase) : ViewMode
 
     init {
         // Initiates the product fetching process when the ViewModel is created
-        getProducts()
+        getAllProducts()
     }
 
     // Function to fetch products
-    private fun getProducts() {
+    private fun getAllProducts() {
         viewModelScope.launch {
             _uiState.value = HomeScreenUIEvents.Loading // Set UI state to loading
-            getProductUseCase.execute().let { result -> // Execute use case to fetch products
-                when (result) {
-                    is ResultWrapper.Success -> {
-                        val data = (result).value // Retrieve data from the result
-                        _uiState.value =
-                            HomeScreenUIEvents.Success(data) // Update UI state with success
-                    }
+            val features = getProducts("electronics")
+            val popularProducts = getProducts("jewelery")
+            if (features.isEmpty() || popularProducts.isEmpty()) {
+                _uiState.value = HomeScreenUIEvents.Error("Failed to load products")
+                return@launch
+            }
+            _uiState.value = HomeScreenUIEvents.Success(features, popularProducts)
+        }
+    }
 
-                    is ResultWrapper.Failure -> {
-                        val errorMessage =
-                            (result).exception.message
-                                ?: "An error occurred" // Retrieve error message
-                        _uiState.value =
-                            HomeScreenUIEvents.Error(errorMessage) // Update UI state with error
-                    }
+    private suspend fun getProducts(category: String?): List<Product> {
+        getProductUseCase.execute(category).let { result -> // Execute use case to fetch products
+            when (result) {
+                is ResultWrapper.Success -> {
+                    return (result).value
+                }
+
+                is ResultWrapper.Failure -> {
+                    return emptyList()
                 }
             }
         }
@@ -49,7 +53,7 @@ class HomeViewModel(private val getProductUseCase: GetProductUseCase) : ViewMode
 // UI events for the Home screen
 sealed class HomeScreenUIEvents {
     data object Loading : HomeScreenUIEvents() // Represents a loading state
-    data class Success(val data: List<Product>) :
+    data class Success(val features: List<Product>, val popularProducts: List<Product>) :
         HomeScreenUIEvents() // Represents a success state with data
 
     data class Error(val message: String) :

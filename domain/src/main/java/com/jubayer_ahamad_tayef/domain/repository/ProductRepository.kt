@@ -7,5 +7,5 @@ import com.jubayer_ahamad_tayef.domain.network.ResultWrapper
 interface ProductRepository {
     // Suspended function to fetch products
     // Returns a ResultWrapper containing a list of products or an error
-    suspend fun getProducts(): ResultWrapper<List<Product>>
+    suspend fun getProducts(category: String?): ResultWrapper<List<Product>>
 }

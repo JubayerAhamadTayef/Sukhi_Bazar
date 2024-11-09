@@ -10,3 +10,6 @@ val Pink80 = Color(0xFFEFB8C8)        // Light pink color
 val Purple40 = Color(0xFF6650a4)      // Dark purple color
 val PurpleGrey40 = Color(0xFF625b71)  // Dark purple-grey color
 val Pink40 = Color(0xFF7D5260)        // Dark pink color
+
+// My custom color
+val Blue = Color(0xFF6055D8)        // Blue color

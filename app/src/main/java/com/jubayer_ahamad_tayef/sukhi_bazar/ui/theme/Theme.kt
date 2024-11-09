@@ -12,22 +12,12 @@ import androidx.compose.ui.platform.LocalContext
 
 // Define the dark color scheme for the theme
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80, secondary = PurpleGrey80, tertiary = Pink80
+    primary = Blue, secondary = PurpleGrey80, tertiary = Pink80
 )
 
 // Define the light color scheme for the theme
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40, secondary = PurpleGrey40, tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = Blue, secondary = PurpleGrey40, tertiary = Pink40
 )
 
 // Composable function to set the theme for the app
@@ -50,6 +40,6 @@ fun Sukhi_Bazar_Theme(
 
     // Apply the theme with the determined color scheme and typography
     MaterialTheme(
-        colorScheme = colorScheme, typography = Typography, content = content
+        colorScheme = colorScheme, typography = AppTypography, content = content
     )
 }

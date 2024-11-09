@@ -20,9 +20,16 @@ import io.ktor.utils.io.errors.IOException
 // Implementation of NetworkService interface using Ktor HttpClient
 class NetworkServiceImplementation(val client: HttpClient) : NetworkService {
 
+    private val baseUrl = "https://fakestoreapi.com"
+
     // Fetches products from the API and maps them to the domain model
-    override suspend fun getProducts(): ResultWrapper<List<Product>> {
-        return makeWebRequest(url = "https://fakestoreapi.com/products",
+    override suspend fun getProducts(category: String?): ResultWrapper<List<Product>> {
+        // Constructs the URL based on the optional category parameter
+        val url =
+            if (category != null) "$baseUrl/products/category/$category" else "$baseUrl/products"
+
+        return makeWebRequest(
+            url = url,
             method = HttpMethod.Get,
             mapper = { dataModules: List<DataProductModel> ->
                 dataModules.map { it.toProduct() } // Map API response to domain model

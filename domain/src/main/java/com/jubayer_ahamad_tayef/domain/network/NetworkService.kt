@@ -4,8 +4,8 @@ import com.jubayer_ahamad_tayef.domain.model.Product
 
 // Interface for network service operations
 interface NetworkService {
-    // Suspended function to fetch products
-    suspend fun getProducts(): ResultWrapper<List<Product>>
+    // Suspended function to fetch products, optionally filtered by category
+    suspend fun getProducts(category: String?): ResultWrapper<List<Product>>
 }
 
 // Sealed class to handle results of network operations

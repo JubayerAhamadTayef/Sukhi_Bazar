@@ -7,5 +7,5 @@ class GetProductUseCase(private val repository: ProductRepository) {
 
     // Executes the use case to fetch products
     // Calls the getProducts method from the ProductRepository
-    suspend fun execute() = repository.getProducts()
+    suspend fun execute(category: String?) = repository.getProducts(category)
 }
