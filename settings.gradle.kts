@@ -21,3 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Sukhi_Bazar"
 include(":app")
+include(":data")
+include(":domain")

@@ -1,6 +1,5 @@
-package com.jubayer_ahamad_tayef.sukhi_bazar.ui.theme
+package com.jubayer_ahamad_tayef.sukhi_bazar.ui.theme // Package for theme-related definitions
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -11,16 +10,14 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
+// Define the dark color scheme for the theme
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Purple80, secondary = PurpleGrey80, tertiary = Pink80
 )
 
+// Define the light color scheme for the theme
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = Purple40, secondary = PurpleGrey40, tertiary = Pink40
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -33,13 +30,14 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+// Composable function to set the theme for the app
 @Composable
-fun Sukhi_BazarTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+fun Sukhi_Bazar_Theme(
+    darkTheme: Boolean = isSystemInDarkTheme(), // Use system's dark theme setting by default
+    dynamicColor: Boolean = true, // Dynamic color is available on Android 12+
+    content: @Composable () -> Unit // Lambda to specify the content within the theme
 ) {
+    // Determine the color scheme based on dynamic color and dark theme settings
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
@@ -50,9 +48,8 @@ fun Sukhi_BazarTheme(
         else -> LightColorScheme
     }
 
+    // Apply the theme with the determined color scheme and typography
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
+        colorScheme = colorScheme, typography = Typography, content = content
     )
 }
