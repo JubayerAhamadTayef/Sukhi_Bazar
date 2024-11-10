@@ -1,7 +1,8 @@
-package com.jubayer_ahamad_tayef.sukhi_bazar.ui.feature.home // Defines the package for the home feature UI components
+package com.jubayer_ahamad_tayef.sukhi_bazar.ui.feature.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +29,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,33 +48,64 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel = koinViewModel()) {
+
     val uiState = viewModel.uiState.collectAsState()
+
+    val loading = remember {
+        mutableStateOf(false)
+    }
+
+    val error = remember {
+        mutableStateOf<String?>(null)
+    }
+
+    val feature = remember {
+        mutableStateOf<List<Product>>(emptyList())
+    }
+
+    val popular = remember {
+        mutableStateOf<List<Product>>(emptyList())
+    }
+
+    val category = remember {
+        mutableStateOf<List<String>>(emptyList())
+    }
+
     Scaffold {
         Surface(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)
         ) {
-            // Handle different states of the UI
+
             when (uiState.value) {
                 is HomeScreenUIEvents.Loading -> {
-                    // Show a loading indicator while data is being loaded
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+                    loading.value = true
+                    error.value = null
                 }
 
                 is HomeScreenUIEvents.Success -> {
-                    // Display the list of products when data is successfully loaded
                     val data = (uiState.value as HomeScreenUIEvents.Success)
-                    HomeContent(data.features, data.popularProducts)
+                    feature.value = data.features
+                    popular.value = data.popularProducts
+                    category.value = data.categories
+                    loading.value = false
+                    error.value = null
                 }
 
                 is HomeScreenUIEvents.Error -> {
-                    // Show an error message if there is an error loading the data
-                    Text(text = (uiState.value as HomeScreenUIEvents.Error).message)
+                    val errorMessage = (uiState.value as HomeScreenUIEvents.Error).message
+                    loading.value = false
+                    error.value = errorMessage
                 }
             }
+            HomeContent(
+                features = feature.value,
+                popularProducts = popular.value,
+                categories = category.value,
+                isLoading = loading.value,
+                errorMessage = error.value
+            )
         }
     }
 }
@@ -119,7 +153,13 @@ fun ProfileHeader() {
 }
 
 @Composable
-fun HomeContent(features: List<Product>, popularProducts: List<Product>) {
+fun HomeContent(
+    features: List<Product>,
+    popularProducts: List<Product>,
+    categories: List<String>,
+    isLoading: Boolean = false,
+    errorMessage: String? = null
+) {
     LazyColumn {
         item {
             ProfileHeader()
@@ -128,13 +168,54 @@ fun HomeContent(features: List<Product>, popularProducts: List<Product>) {
             Spacer(modifier = Modifier.size(16.dp))
         }
         item {
+
+            if (isLoading) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.size(50.dp))
+                    Text(
+                        text = "Loading...", style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+
+            errorMessage?.let {
+                Text(text = it, style = MaterialTheme.typography.bodyMedium)
+            }
+
+            if (categories.isNotEmpty()) {
+                LazyRow {
+                    items(categories) { category ->
+                        Text(
+                            text = category.replaceFirstChar { it.uppercase() },
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp)
+                                .clip(
+                                    RoundedCornerShape(8.dp)
+                                )
+                                .background(MaterialTheme.colorScheme.primary)
+                                .padding(8.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.size(16.dp))
+            }
+
             if (features.isNotEmpty()) {
                 HomeProductRow(products = features, title = "Features")
                 Spacer(modifier = Modifier.size(16.dp))
             }
+
             if (popularProducts.isNotEmpty()) {
                 HomeProductRow(products = popularProducts, title = "Popular Products")
             }
+
         }
     }
 }
@@ -161,7 +242,9 @@ fun SearchBar(value: String, onTextChanged: (String) -> Unit) {
             unfocusedContainerColor = Color.LightGray.copy(alpha = 0.3f)
         ),
         placeholder = {
-            Text(text = "Search for products", style = MaterialTheme.typography.bodySmall)
+            Text(
+                text = "Search for products", style = MaterialTheme.typography.bodySmall
+            )
         })
 }
 

@@ -1,42 +1,57 @@
-package com.jubayer_ahamad_tayef.sukhi_bazar.ui.feature.home // Defines the package for the home feature UI components
+package com.jubayer_ahamad_tayef.sukhi_bazar.ui.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jubayer_ahamad_tayef.domain.model.Product
 import com.jubayer_ahamad_tayef.domain.network.ResultWrapper
+import com.jubayer_ahamad_tayef.domain.usecase.GetCategoryUseCase
 import com.jubayer_ahamad_tayef.domain.usecase.GetProductUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// ViewModel for the Home screen
-class HomeViewModel(private val getProductUseCase: GetProductUseCase) : ViewModel() {
+class HomeViewModel(
+    private val getProductUseCase: GetProductUseCase,
+    private val getCategoryUseCase: GetCategoryUseCase
+) : ViewModel() {
 
-    // MutableStateFlow to manage the UI state
     private val _uiState = MutableStateFlow<HomeScreenUIEvents>(HomeScreenUIEvents.Loading)
-    val uiState = _uiState.asStateFlow() // Public read-only state flow
+    val uiState = _uiState.asStateFlow()
 
     init {
-        // Initiates the product fetching process when the ViewModel is created
         getAllProducts()
     }
 
-    // Function to fetch products
     private fun getAllProducts() {
         viewModelScope.launch {
-            _uiState.value = HomeScreenUIEvents.Loading // Set UI state to loading
+            _uiState.value = HomeScreenUIEvents.Loading
             val features = getProducts("electronics")
             val popularProducts = getProducts("jewelery")
-            if (features.isEmpty() || popularProducts.isEmpty()) {
+            val categories = getCategory()
+            if (features.isEmpty() && popularProducts.isEmpty() && categories.isNotEmpty()) {
                 _uiState.value = HomeScreenUIEvents.Error("Failed to load products")
                 return@launch
             }
-            _uiState.value = HomeScreenUIEvents.Success(features, popularProducts)
+            _uiState.value = HomeScreenUIEvents.Success(features, popularProducts, categories)
+        }
+    }
+
+    private suspend fun getCategory(): List<String> {
+        getCategoryUseCase.execute().let { result ->
+            when (result) {
+                is ResultWrapper.Success -> {
+                    return (result).value
+                }
+
+                is ResultWrapper.Failure -> {
+                    return emptyList()
+                }
+            }
         }
     }
 
     private suspend fun getProducts(category: String?): List<Product> {
-        getProductUseCase.execute(category).let { result -> // Execute use case to fetch products
+        getProductUseCase.execute(category).let { result ->
             when (result) {
                 is ResultWrapper.Success -> {
                     return (result).value
@@ -50,12 +65,13 @@ class HomeViewModel(private val getProductUseCase: GetProductUseCase) : ViewMode
     }
 }
 
-// UI events for the Home screen
 sealed class HomeScreenUIEvents {
-    data object Loading : HomeScreenUIEvents() // Represents a loading state
-    data class Success(val features: List<Product>, val popularProducts: List<Product>) :
-        HomeScreenUIEvents() // Represents a success state with data
+    data object Loading : HomeScreenUIEvents()
+    data class Success(
+        val features: List<Product>,
+        val popularProducts: List<Product>,
+        val categories: List<String>
+    ) : HomeScreenUIEvents()
 
-    data class Error(val message: String) :
-        HomeScreenUIEvents() // Represents an error state with a message
+    data class Error(val message: String) : HomeScreenUIEvents()
 }
